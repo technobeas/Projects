@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Category Filter Example</title>
+    <style>
+      body {
+        padding: 20px;
+        background: #f9f9f9;
+      }
+      h1 {
+        margin-bottom: 15px;
+      }
+      select {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 20px;
+      }
+      .product-list {
+        list-style: none;
+        padding: 0;
+      }
+      .product-list li {
+        background: white;
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Filter by Category</h1>
+
+    <label for="category-filter">Choose a category:</label>
+    <select id="category-filter">
+      <option value="all">All</option>
+      <option value="electronics">Electronics</option>
+      <option value="fashion">Fashion</option>
+      <option value="sports">Sports</option>
+    </select>
+
+    <ul class="product-list" id="product-list"></ul>
+
+    <script>
+      const products = [
+        { name: "Apple iPhone 15", category: "electronics" },
+        { name: "Samsung Galaxy S24", category: "electronics" },
+        { name: "Sony Headphones", category: "electronics" },
+        { name: "Nike Running Shoes", category: "sports" },
+        { name: "Adidas Sports T-shirt", category: "sports" },
+        { name: "Ray-Ban Sunglasses", category: "fashion" },
+        { name: "Levi's Jeans", category: "fashion" },
+        { name: "Puma Sports Jacket", category: "sports" },
+      ];
+
+      const listContainer = document.getElementById("product-list");
+      const categoryFilter = document.getElementById("category-filter");
+
+      function renderProducts(items) {
+        listContainer.innerHTML = "";
+        items.forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = `${item.name} (${item.category})`;
+          listContainer.appendChild(li);
+        });
+      }
+
+      renderProducts(products);
+
+      categoryFilter.addEventListener("change", () => {
+        const selected = categoryFilter.value;
+        if (selected === "all") {
+          renderProducts(products);
+        } else {
+          const filtered = products.filter((p) => p.category === selected);
+          renderProducts(filtered);
+        }
+      });
+    </script>
+  </body>
+</html>

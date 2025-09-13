@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Drag & Drop Lists</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        padding: 20px;
+        background: #f0f0f0;
+      }
+      .container {
+        width: 250px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 1em;
+      }
+      h2 {
+        text-align: center;
+        margin: 0 0 1em;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        min-height: 200px;
+        border: 2px dashed transparent;
+        border-radius: 6px;
+        transition: border 0.2s;
+      }
+      ul.drag-over {
+        border-color: #3399ff;
+      }
+      li {
+        background: #fff;
+        margin-bottom: 0.5em;
+        padding: 0.8em;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: grab;
+      }
+      li.dragging {
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Task</h2>
+      <ul>
+        <li draggable="true">Learn HTML</li>
+        <li draggable="true">Master CSS</li>
+      </ul>
+    </div>
+    <div class="container">
+      <h2>Ongoing</h2>
+      <ul>
+        <li draggable="true">Practice JavaScript</li>
+      </ul>
+    </div>
+    <div class="container">
+      <h2>Completed</h2>
+      <ul>
+        <li draggable="true">Build Projects</li>
+        <li draggable="true">Get Feedback</li>
+      </ul>
+    </div>
+
+    <script>
+      const lists = document.querySelectorAll("ul");
+      let dragged;
+
+      lists.forEach((list) => {
+        list.addEventListener("dragstart", (e) => {
+          dragged = e.target;
+          e.target.classList.add("dragging");
+        });
+
+        list.addEventListener("dragend", (e) => {
+          e.target.classList.remove("dragging");
+          dragged = null;
+          lists.forEach((l) => l.classList.remove("drag-over"));
+        });
+
+        list.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          list.classList.add("drag-over");
+        });
+
+        list.addEventListener("dragleave", () =>
+          list.classList.remove("drag-over")
+        );
+
+        list.addEventListener("drop", (e) => {
+          e.preventDefault();
+          list.appendChild(dragged);
+          list.classList.remove("drag-over");
+        });
+      });
+    </script>
+  </body>
+</html>

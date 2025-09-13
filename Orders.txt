@@ -1,0 +1,48 @@
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var data = e.parameter;
+
+  // Get basic customer info
+  var custName = data.custName || "";
+  var phone = data.phone || "";
+  var address = data.address || "";
+
+  // Extract cart items and calculate total
+  var items = [];
+  var totalAmount = 0;
+  var i = 0;
+
+  while (true) {
+    var name = data[`items[${i}][name]`];
+    var quantity = parseFloat(data[`items[${i}][quantity]`]);
+    var price = parseFloat(data[`items[${i}][price]`]);
+
+    if (!name && isNaN(quantity) && isNaN(price)) break;
+
+    if (!isNaN(quantity) && !isNaN(price)) {
+      totalAmount += quantity * price;
+    }
+
+    items.push({ name, quantity, price });
+    i++;
+  }
+
+  // Format items into a string
+  var itemSummary = items.map(function(item) {
+    return `${item.name} (x${item.quantity}) - ₹${item.price}`;
+  }).join(", ");
+
+  // Append data to the sheet
+  sheet.appendRow([
+    new Date(),       // Timestamp
+    custName,         // Customer Name
+    phone,            // Phone
+    address,          // Address
+    itemSummary,      // Items Summary
+    `₹${totalAmount.toFixed(2)}` // Total
+  ]);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ result: "success" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f7f9fc;
+        color: #333;
+        padding: 40px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .container {
+        background: #fff;
+        border-radius: 8px;
+        max-width: 600px;
+        width: 100%;
+        padding: 30px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+      }
+
+      .form-description {
+        font-size: 0.95rem;
+        color: #666;
+        margin-bottom: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #007bff;
+        background-color: #eef6ff;
+      }
+
+      .radio-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: normal;
+      }
+
+      textarea {
+        resize: vertical;
+      }
+
+      .required {
+        color: red;
+      }
+
+      .btn {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 20px;
+        width: 100%;
+        border: none;
+        font-size: 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn:hover {
+        background-color: #0056b3;
+      }
+
+      .success-message {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <form id="survey-form" novalidate>
+        <h1>Survey Form</h1>
+        <p class="form-description">Product feedback form</p>
+
+        <div class="form-group">
+          <label for="name">Full Name <span class="required">*</span></label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Rahul"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email <span class="required">*</span></label>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Rahul123@gmail.com"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="age">Age Range</label>
+          <select name="age" id="age">
+            <option value="">Select age Range</option>
+            <option value="under_18">Under 18</option>
+            <option value="18_50">18-50</option>
+            <option value="above_50">Above 50</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>How satisfied are you with our product?</label>
+          <div class="radio-group">
+            <label
+              ><input
+                type="radio"
+                name="satisfaction"
+                value="very Satisfied"
+              />Very Satisfied</label
+            >
+
+            <label
+              ><input
+                type="radio"
+                name="satisfaction"
+                value="satisfied"
+              />Satisfied</label
+            >
+
+            <label
+              ><input
+                type="radio"
+                name="satisfaction"
+                value="neutral"
+              />Neutral</label
+            >
+
+            <label
+              ><input
+                type="radio"
+                name="satisfaction"
+                value="dissatisfied"
+              />Dissatisfied</label
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="comments">Additional Comments</label>
+            <textarea
+              name="comments"
+              id="comments"
+              rows="4"
+              placeholder="Share Your thoughts..."
+            ></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="btn">Submit</button>
+      </form>
+
+      <div id="success-message" class="success-message" hidden>
+        Thank You! Your response has been recorded.
+      </div>
+    </main>
+  </body>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("survey-form");
+      const successMessage = document.getElementById("success-message");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        form.style.display = "none";
+        successMessage.hidden = false;
+      });
+    });
+  </script>
+</html>
+
+<!-- 
+fetch("/submit-survey", {
+  method: "POST",
+  body: new FormData(form)
+}); -->

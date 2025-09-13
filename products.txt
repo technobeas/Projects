@@ -1,0 +1,25 @@
+function doGet() {
+  const cache = CacheService.getScriptCache();
+  let json = cache.get("products");
+
+  if (!json) {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    const result = rows.map(row => {
+      const item = {};
+      headers.forEach((header, index) => {
+        item[header] = row[index];
+      });
+      return item;
+    });
+
+    json = JSON.stringify(result);
+    cache.put("products", json, 150); 
+  }
+
+  return ContentService.createTextOutput(json)
+    .setMimeType(ContentService.MimeType.JSON);
+}
