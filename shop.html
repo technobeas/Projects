@@ -14,6 +14,7 @@
 
       .product-container {
         display: flex;
+        justify-content: center;
         flex-wrap: wrap;
         gap: 20px;
       }
@@ -52,11 +53,10 @@
         cursor: pointer;
       }
 
-      /* Side Cart Drawer */
       .cart-drawer {
         position: fixed;
         top: 0;
-        right: -350px;
+        right: -100%;
         width: 350px;
         height: 100%;
         background: #fff;
@@ -125,6 +125,11 @@
         border: none;
         color: red;
         cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .loading {
+        color: red;
       }
     </style>
   </head>
@@ -155,6 +160,7 @@
         "https://script.google.com/macros/s/AKfycbz7H3mNRmUUExvk-UAsUA2qm36S71g65fi6aYvqbvM6C9nPJM45DnHHm2OZuLZ-cecX/exec";
 
       let products = [];
+      const container = document.getElementById("product-container");
 
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
       renderCart();
@@ -169,17 +175,16 @@
 
       async function fetchProducts() {
         try {
+          container.innerHTML = `<h2 class="loading">Loading Products...</h2>`;
           const res = await fetch(apiURL);
           products = await res.json();
           renderProducts(products);
         } catch {
-          document.getElementById("product-container").innerHTML =
-            "<p>Failed to load products.</p>";
+          container.innerHTML = "<p>Failed to load products.</p>";
         }
       }
 
       function renderProducts(products) {
-        const container = document.getElementById("product-container");
         container.innerHTML = products
           .map(
             (p) => `
