@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shop</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+      .product-card {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px;
+        width: 200px;
+      }
+      .product-card img {
+        width: 100%;
+      }
+      .product-container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .cart-toggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        background: #e91e63;
+        color: white;
+        border: none;
+        cursor: pointer;
+        z-index: 1;
+      }
+      .cart-drawer {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 300px;
+        height: 100%;
+        background: white;
+        padding: 20px;
+        border-left: 1px solid #ccc;
+        transition: right 0.3s;
+        overflow-y: auto;
+      }
+      .cart-drawer.open {
+        right: 0;
+      }
+      .cart-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+      button {
+        cursor: pointer;
+        padding: 10px;
+        background-color: rgb(236, 103, 103);
+        border: none;
+      }
+
+      input,
+      textarea {
+        margin-bottom: 12px;
+        padding: 16px;
+        max-width: 250px;
+      }
+      textarea {
+        resize: vertical;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Simple Shop</h1>
+    <div class="product-container" id="product-container"></div>
+
+    <button class="cart-toggle" onclick="toggleCart()">
+      Cart (<span id="cart-count">0</span>)
+    </button>
+
+    <div class="cart-drawer" id="cart-drawer">
+      <h2>Cart</h2>
+      <div id="cart-items"></div>
+      <p>Total: $<span id="cart-total">0</span></p>
+
+      <h3>Checkout</h3>
+      <input id="custName" placeholder="Name" /><br />
+      <input id="phone" placeholder="Phone" /><br />
+      <textarea id="address" placeholder="Address"></textarea><br />
+      <button id="submit-order">Submit Order</button>
+    </div>
+
+    <script>
+      const apiURL =
+        "https://script.google.com/macros/s/AKfycbxj5uBxHYQykZk2I1X2hwbwhisA6-jIXEtlv0swiCNnc_1udPFGFWypNA3yUxg2yBFh7Q/exec";
+      const orderSubmitURL =
+        "https://script.google.com/macros/s/AKfycbz7H3mNRmUUExvk-UAsUA2qm36S71g65fi6aYvqbvM6C9nPJM45DnHHm2OZuLZ-cecX/exec";
+
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const container = document.getElementById("product-container");
+
+      function toggleCart() {
+        document.getElementById("cart-drawer").classList.toggle("open");
+      }
+
+      function saveCart() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+      }
+
+      function renderCart() {
+        const itemsEl = document.getElementById("cart-items");
+        const totalEl = document.getElementById("cart-total");
+        const countEl = document.getElementById("cart-count");
+        let total = 0,
+          count = 0;
+
+        itemsEl.innerHTML = cart
+          .map((item) => {
+            total += item.price * item.qty;
+            count += item.qty;
+            return `<div class="cart-item">
+                  ${item.name} x ${item.qty}
+                  <button onclick="removeFromCart('${item.name}')">❌</button>
+                </div>`;
+          })
+          .join("");
+
+        totalEl.textContent = total.toFixed(2);
+        countEl.textContent = count;
+      }
+
+      function addToCart(name, price) {
+        const item = cart.find((i) => i.name === name);
+        if (item) item.qty++;
+        else cart.push({ name, price, qty: 1 });
+        saveCart();
+        renderCart();
+      }
+
+      function removeFromCart(name) {
+        cart = cart.filter((i) => i.name !== name);
+        saveCart();
+        renderCart();
+      }
+
+      async function fetchProducts() {
+        container.innerHTML = "Loading...";
+        try {
+          const res = await fetch(apiURL);
+          const products = await res.json();
+          container.innerHTML = products
+            .map(
+              (p) => `
+          <div class="product-card">
+            <img src="${p.pic}" alt="${p.name}">
+            <h3>${p.name}</h3>
+            <p>$${p.price}</p>
+            <button onclick="addToCart('${p.name}', ${p.price})">Add to Cart</button>
+          </div>
+        `
+            )
+            .join("");
+        } catch {
+          container.innerHTML = "Failed to load products.";
+        }
+      }
+
+      document
+        .getElementById("submit-order")
+        .addEventListener("click", async () => {
+          const name = document.getElementById("custName").value.trim();
+          const phone = document.getElementById("phone").value.trim();
+          const address = document.getElementById("address").value.trim();
+          if (!name || !phone || !address || cart.length === 0) {
+            alert("Please fill all fields and add items.");
+            return;
+          }
+
+          const form = new URLSearchParams();
+          form.append("custName", name);
+          form.append("phone", phone);
+          form.append("address", address);
+          cart.forEach((item, i) => {
+            form.append(`items[${i}][name]`, item.name);
+            form.append(`items[${i}][quantity]`, item.qty);
+            form.append(`items[${i}][price]`, item.price);
+          });
+
+          try {
+            const res = await fetch(orderSubmitURL, {
+              method: "POST",
+              body: form,
+            });
+            const result = await res.json();
+            if (result.result === "success") {
+              alert("Order submitted!");
+              cart = [];
+              localStorage.removeItem("cart");
+              renderCart();
+              document.getElementById("custName").value = "";
+              document.getElementById("phone").value = "";
+              document.getElementById("address").value = "";
+            } else {
+              alert("Submission failed.");
+            }
+          } catch {
+            alert("Error sending order.");
+          }
+        });
+
+      fetchProducts();
+      renderCart();
+    </script>
+  </body>
+</html>
